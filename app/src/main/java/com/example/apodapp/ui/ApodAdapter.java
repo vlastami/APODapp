@@ -1,3 +1,4 @@
+//java/com/example/apodapp/ui/ApodAdapter.java
 package com.example.apodapp.ui;
 
 import android.content.Context;
@@ -67,10 +68,17 @@ public class ApodAdapter extends RecyclerView.Adapter<ApodAdapter.ViewHolder> {
 
 
     public void setApodImages(List<ApodImage> images) {
-        this.apodImages = images;
-        this.filteredImages = new ArrayList<>(images);  // Nastaví filteredImages na nový seznam
-        notifyDataSetChanged();  // Upozorní RecyclerView na změnu dat
+        List<ApodImage> filteredList = new ArrayList<>();
+        for (ApodImage image : images) {
+            if (!image.getUrl().contains("youtube.com") && !image.getUrl().contains("vimeo.com")) {
+                filteredList.add(image);
+            }
+        }
+        this.apodImages = filteredList;
+        this.filteredImages = new ArrayList<>(filteredList);
+        notifyDataSetChanged();
     }
+
 
 
     public class ViewHolder extends RecyclerView.ViewHolder {

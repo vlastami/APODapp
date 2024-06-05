@@ -1,3 +1,4 @@
+//java/com/example/apodapp/data/ApodImage.java
 package com.example.apodapp.data;
 
 public class ApodImage {

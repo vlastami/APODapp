@@ -1,3 +1,4 @@
+//java/com/example/apodapp/ui/DetailActivity.java
 package com.example.apodapp.ui;
 
 import android.os.Bundle;
@@ -41,8 +42,11 @@ public class DetailActivity extends AppCompatActivity {
             textViewExplanation.setText(explanation);
 
             Glide.with(this).load(url).into(imageViewDetail);
+
+            setTitle("APOD from " + date);
         }
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
