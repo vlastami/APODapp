@@ -1,7 +1,6 @@
 package com.example.apodapp.service;
 
-import com.example.apodapp.data.ApodImage;
-import com.example.apodapp.data.ApiClient;
+import com.example.apodapp.data.ApodClient;
 import com.example.apodapp.ui.ApodAdapter;
 
 import java.text.SimpleDateFormat;
@@ -17,6 +16,6 @@ public class ApodImageService {
         calendar.add(Calendar.DAY_OF_YEAR, -6);
         String startDate = dateFormat.format(calendar.getTime());
 
-        ApiClient.loadImages(adapter, startDate, endDate);
+        ApodClient.loadImages(adapter, startDate, endDate);
     }
 }

@@ -1,20 +1,19 @@
-//java/com/example/apodapp/data/ApiClient.java
+//java/com/example/apodapp/data/ApodClient.java
 
 package com.example.apodapp.data;
 
-        import retrofit2.Retrofit;
-        import retrofit2.converter.gson.GsonConverterFactory;
-        import retrofit2.Call;
-        import retrofit2.Callback;
-        import retrofit2.Response;
-        import android.util.Log;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import android.util.Log;
 
-        import com.example.apodapp.service.ApodImageService;
-        import com.example.apodapp.ui.ApodAdapter;
+import com.example.apodapp.ui.ApodAdapter;
 
-        import java.util.List;
+import java.util.List;
 
-public class ApiClient {
+public class ApodClient {
     private static final String BASE_URL = "https://api.nasa.gov/";
     private static Retrofit retrofit = null;
 
