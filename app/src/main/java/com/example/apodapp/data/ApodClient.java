@@ -1,45 +1,17 @@
-package com.example.apodapp.data;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
-
-import com.example.apodapp.ui.ApodAdapter;
-
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * Třída ApodClient poskytuje metody pro práci s NASA APOD API
- * a lokální SQLite databází pro cachování dat.
- */
 public class ApodClient {
     private static final String BASE_URL = "https://api.nasa.gov/";
     private static Retrofit retrofit = null;
     private final DatabaseHelper dbHelper;
     private final Context context;
 
-    /**
-     * Konstruktor třídy ApodClient inicializuje DatabaseHelper pro přístup k SQLite databázi.
-     * @param context Kontext aplikace, použitý pro inicializaci DatabaseHelper.
-     */
     public ApodClient(Context context) {
         this.context = context;
         this.dbHelper = new DatabaseHelper(context);
     }
 
-    /**
-     * Vrací instanci klienta Retrofit pro komunikaci s API.
-     * @return Instance klienta Retrofit .
-     */
     public static Retrofit getClient() {
         if (retrofit == null) {
             retrofit = new Retrofit.Builder()
@@ -50,12 +22,6 @@ public class ApodClient {
         return retrofit;
     }
 
-    /**
-     * Načte cachované obrázky APOD z lokální SQLite databáze pro zadané datové rozmezí.
-     * @param startDate Počáteční datum ve formátu YYYY-MM-DD.
-     * @param endDate Koncové datum ve formátu YYYY-MM-DD.
-     * @return Seznam cache obrázků APOD.
-     */
     public List<ApodImage> getCachedApodImages(String startDate, String endDate) {
         List<ApodImage> images = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
@@ -83,17 +49,8 @@ public class ApodClient {
         return images;
     }
 
-    /**
-     * Načte obrázky APOD z cache nebo API a nastaví je do adaptéru.
-     * @param adapter Adaptér pro zobrazení obrázků APOD.
-     * @param startDate Počáteční datum ve formátu YYYY-MM-DD.
-     * @param endDate Koncové datum ve formátu YYYY-MM-DD.
-     */
     public void loadImages(ApodAdapter adapter, String startDate, String endDate) {
-        List<ApodImage> cachedImages = getCachedApodImages(startDate, endDate);
-        if (!cachedImages.isEmpty()) {
-            adapter.setApodImages(cachedImages);
-        } else {
+        if (isInternetAvailable()) {
             ApodApi apiService = getClient().create(ApodApi.class);
             Call<List<ApodImage>> call = apiService.getRecentApodImages("pU88E2h1jB0BUrndCebzycZIsd4OxEWyjOqNdZe8", startDate, endDate);
             call.enqueue(new Callback<List<ApodImage>>() {
@@ -113,13 +70,12 @@ public class ApodClient {
                     Log.e("ApodClient", "Error fetching recent APOD images", t);
                 }
             });
+        } else {
+            List<ApodImage> cachedImages = getCachedApodImages(startDate, endDate);
+            adapter.setApodImages(cachedImages);
         }
     }
 
-    /**
-     * Uloží seznam obrázků APOD do cache v lokální SQLite databázi.
-     * @param images Seznam obrázků APOD k uložení.
-     */
     public void cacheApodImages(List<ApodImage> images) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         for (ApodImage image : images) {
@@ -131,5 +87,11 @@ public class ApodClient {
             db.insert("apod_cache", null, values);
         }
         db.close();
+    }
+
+    private boolean isInternetAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 }
